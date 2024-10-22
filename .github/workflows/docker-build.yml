@@ -1,0 +1,40 @@
+name: Docker Build
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        description: 'Name of the Docker image'
+        required: true
+        type: string
+      image_tag:
+        description: 'Tag for the Docker image'
+        required: true
+        default: 'latest'
+        type: string
+    secrets:
+      DOCKER_HUB_USERNAME:
+        required: true
+      DOCKER_HUB_PASSWORD:
+        required: true
+
+jobs:
+  build_deploy:
+    name: Build docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Login to docker hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true
+          tags: ${{ inputs.image_name }}:${{ inputs.image_tag }}

@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Update all servers
+      shell:
+        cmd: "sudo docker service update --force --image {{ image_name }}:{{ image_tag }} {{ service_name }}"
+    - name: Clean up docker system
+      shell:
+        cmd: sudo docker system prune -fa

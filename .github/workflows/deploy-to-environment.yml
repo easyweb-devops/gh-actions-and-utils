@@ -1,0 +1,61 @@
+name: Deploy to environment
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: string
+      image_tag:
+        description: "Tag for the Docker image"
+        required: true
+        type: string
+      image_name:
+        description: "Name of the Docker image"
+        required: true
+        type: string
+      service_name:
+        description: "Name of the service to update"
+        required: true
+        type: string
+    secrets:
+      DO_TOKEN:
+        required: true
+      USER:
+        required: true
+      DEPLOY_KEY:
+        required: true
+
+jobs:
+  prepare:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Create hosts file
+        run: |
+          chmod +x ${{github.workspace}}/deploy/create_hosts.sh
+          ${{github.workspace}}/deploy/create_hosts.sh ${{ secrets.DO_TOKEN }} ${{ inputs.environment }} ${{ secrets.USER }}
+      - name: Setting up SSH deploy key
+        shell: bash {0}
+        run: |
+          mkdir -p /home/runner/.ssh/
+          echo "${{ secrets.DEPLOY_KEY }}" > /home/runner/.ssh/${{ secrets.USER }}
+          chmod 600 /home/runner/.ssh/${{ secrets.USER }}
+      - name: Set up known hosts
+        run: |
+          touch /home/runner/.ssh/known_hosts
+          ip_addresses=$(cat ip.txt)
+          for ip in $ip_addresses; do
+            echo "Processing IP: $ip"
+            ssh-keyscan "$ip" >> /home/runner/.ssh/known_hosts
+          done
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+      - name: Deploy
+        run: |
+          export ANSIBLE_HOST_KEY_CHECKING=False
+          ansible-playbook -i hosts deploy/deploy.yml --private-key=/home/runner/.ssh/${{ secrets.USER }} --user=${{ secrets.USER }} --extra-vars "service_name=${{ inputs.service_name }} image_name=${{ inputs.image_name }} image_tag=${{ inputs.image_tag }} -vv"
