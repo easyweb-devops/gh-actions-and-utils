@@ -37,7 +37,7 @@ jobs:
         run: |
           curl -s https://raw.githubusercontent.com/easyweb-devops/gh-actions-and-utils/refs/heads/main/utils/create-hosts.sh > ${{github.workspace}}/create_hosts.sh
           chmod +x ${{github.workspace}}/create_hosts.sh
-          ./${{github.workspace}}/create_hosts.sh ${{ secrets.DO_TOKEN }} ${{ inputs.environment }} ${{ secrets.USER }}
+          ${{github.workspace}}/create_hosts.sh ${{ secrets.DO_TOKEN }} ${{ inputs.environment }} ${{ secrets.USER }}
       - name: Setting up SSH deploy key
         shell: bash {0}
         run: |
