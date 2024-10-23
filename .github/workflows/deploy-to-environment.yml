@@ -59,4 +59,5 @@ jobs:
       - name: Deploy
         run: |
           export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook -i hosts deploy/deploy.yml --private-key=/home/runner/.ssh/${{ secrets.USER }} --user=${{ secrets.USER }} --extra-vars "service_name=${{ inputs.service_name }} image_name=${{ inputs.image_name }} image_tag=${{ inputs.image_tag }} -vv"
+          curl -s https://raw.githubusercontent.com/easyweb-devops/gh-actions-and-utils/refs/heads/main/utils/ansible/deploy-playbook.yml > ${{github.workspace}}/deploy.yml
+          ansible-playbook -i hosts deploy.yml --private-key=/home/runner/.ssh/${{ secrets.USER }} --user=${{ secrets.USER }} --extra-vars "service_name=${{ inputs.service_name }} image_name=${{ inputs.image_name }} image_tag=${{ inputs.image_tag }} -vv"
