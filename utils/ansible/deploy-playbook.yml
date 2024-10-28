@@ -8,11 +8,14 @@
     - name: Replace {{ service_name }}={{ image_tag }}
       ansible.builtin.lineinfile:
         path: ~/.bashrc
+        state: present
         regexp: 'export {{ service_name }}='
         line: 'export {{ service_name }}={{ image_tag }}'
     - name: Update source for {{ service_name }}={{ image_tag }}
       shell:
         cmd: source ~/.bashrc
+      args:
+        executable: /bin/bash
     - name: Clean up docker system
       shell:
         cmd: sudo docker system prune -fa
