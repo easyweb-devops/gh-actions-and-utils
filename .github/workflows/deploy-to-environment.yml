@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Create hosts file
         run: |
           curl -s https://raw.githubusercontent.com/easyweb-devops/gh-actions-and-utils/refs/heads/main/utils/create-hosts.sh > ${{github.workspace}}/create_hosts.sh
