@@ -10,12 +10,13 @@
         path: ~/.bashrc
         state: absent
         regexp: '{{ service_name }}='
-        
+
     - name: Replace {{ service_name }}={{ image_tag }}
       ansible.builtin.lineinfile:
         path: ~/.bashrc
         state: present
         line: '{{ service_name }}={{ image_tag }}'
+        create: yes
     - name: Update source for {{ service_name }}={{ image_tag }}
       shell:
         cmd: source ~/.bashrc
