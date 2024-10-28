@@ -1,0 +1,32 @@
+name: Deploy to environment
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: string
+    secrets:
+      zone_id:
+        description: "Cloudflare Zone ID"
+        required: true
+        type: string
+      api_key:
+        description: "Cloudflare API Key"
+        required: true
+        type: string
+
+jobs:
+  prepare:
+    name: Purge Cloudflare cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the purge cache api
+        run: |
+          curl --request POST \
+            --url https://api.cloudflare.com/client/v4/zones/${{ secrets.zone_id }}/purge_cache \
+            --header 'Content-Type: application/json' \
+            --header 'Authorization: Bearer ${{ secrets.api_key }} ' \
+            --data '{
+               "purge_everything": true
+            }'
