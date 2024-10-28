@@ -8,13 +8,9 @@ on:
         type: string
     secrets:
       zone_id:
-        description: "Cloudflare Zone ID"
         required: true
-        type: string
       api_key:
-        description: "Cloudflare API Key"
         required: true
-        type: string
 
 jobs:
   prepare:
