@@ -7,7 +7,7 @@
         cmd: "sudo docker service update --force --image {{ image_name }}:{{ image_tag }} {{ service_name }}"
     - name: Replace {{ service_name }}={{ image_tag }}
       ansible.builtin.lineinfile:
-        path: "/home/{{ ansible_user }}/.bashrc"
+        path: "/root/.bashrc"
         regexp: '{{ service_name }}='
         line: 'export {{ service_name }}={{ image_tag }}'
         create: yes
