@@ -34,17 +34,3 @@ jobs:
           TAG=$(echo ${{ inputs.image_tag }} | sed 's/[:,\/]/-/g')
           docker build -t ${{ inputs.image_name }}:${TAG} .
           docker push ${{ inputs.image_name }}:${TAG}
-
-#      - name: Login to docker hub
-#        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-#
-#        with:
-#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-#      - name: Build and push
-#        uses: docker/build-push-action@v4
-#        with:
-#          context: ./
-#          file: ./Dockerfile
-#          push: true
-#          tags: ${{ inputs.image_name }}:${{ inputs.image_tag }}

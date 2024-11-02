@@ -5,18 +5,11 @@
     - name: Update all servers
       shell:
         cmd: "sudo docker service update --force --image {{ image_name }}:{{ image_tag }} {{ service_name }}"
-#    - name: Remove {{ service_name }}={{ image_tag }} to ~/.bashrc
-#      ansible.builtin.lineinfile:
-#        path: ~/.bashrc
-#        state: absent
-#        regexp: '{{ service_name }}='
-#        regexp: 'chasiotis_astro='
-
     - name: Replace {{ service_name }}={{ image_tag }}
       ansible.builtin.lineinfile:
         path: "/home/{{ ansible_user }}/.bashrc"
         regexp: '{{ service_name }}='
-        line: '{{ service_name }}={{ image_tag }}'
+        line: 'export {{ service_name }}={{ image_tag }}'
         create: yes
     - name: Update source for {{ service_name }}={{ image_tag }}
       shell:
