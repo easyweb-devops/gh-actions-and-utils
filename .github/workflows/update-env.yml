@@ -69,4 +69,4 @@ jobs:
           export ANSIBLE_HOST_KEY_CHECKING=False
           curl -s https://raw.githubusercontent.com/easyweb-devops/gh-actions-and-utils/refs/heads/main/utils/ansible/update-env-playbook.yml > ${{github.workspace}}/deploy.yml
           TAG=$(echo ${{ inputs.image_tag }} | sed 's/[:,\/]/-/g')
-          ansible-playbook -i hosts deploy.yml --private-key=/home/runner/.ssh/${{ secrets.USER }} --user=${{ secrets.USER }} --extra-vars "env=${{ inputs.env_file }} env_file_name=${{ vars.env_file_name }} service_name=${{ inputs.service_name }} image_name=${{ inputs.image_name }} image_tag=${TAG} -vv"
+          ansible-playbook -i hosts deploy.yml --private-key=/home/runner/.ssh/${{ secrets.USER }} --user=${{ secrets.USER }} --extra-vars "env=\"${{ inputs.env_file }}\" env_file_name=${{ vars.env_file_name }} service_name=${{ inputs.service_name }} image_name=${{ inputs.image_name }} image_tag=${TAG} -vv"
