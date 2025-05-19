@@ -10,4 +10,4 @@
           echo "$env_contents" > /var/www/deploy/{{ env_file_name }}
     - name: Update all servers
       shell:
-        cmd: "sudo docker service update --force --image {{ image_name }}:{{ image_tag }} {{ service_name }}"
+        cmd: "bash /var/www/deploy/run_prd.sh"
