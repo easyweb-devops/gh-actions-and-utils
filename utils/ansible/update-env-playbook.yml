@@ -1,14 +1,16 @@
 ---
 - hosts: all
   become: true
+
   tasks:
     - name: Copy env
       shell:
         cmd: |
           env_contents="{{ env }}";
-          echo "$env_contents"
           echo "$env_contents" > /var/www/deploy/{{ env_file_name }}
     - name: Update all servers
+      args:
+        executable: /bin/bash
       shell:
         chdir: /var/www/deploy
-        cmd: bash run_prd.sh
+        cmd: source /root/.bashrc && bash run_prd.sh
