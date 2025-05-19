@@ -6,7 +6,8 @@
       shell:
         cmd: |
           env_contents="{{ env }}";
-          echo $env_contents > /var/www/deploy/{{ env_file_name }}
+          echo "$env_contents"
+          echo "$env_contents" > /var/www/deploy/{{ env_file_name }}
     - name: Update all servers
       shell:
         cmd: "sudo docker service update --force --image {{ image_name }}:{{ image_tag }} {{ service_name }}"
