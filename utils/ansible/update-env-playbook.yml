@@ -10,4 +10,4 @@
           echo "$env_contents" > /var/www/deploy/{{ env_file_name }}
     - name: Update all servers
       shell:
-        cmd: "bash /var/www/deploy/run_prd.sh"
+        cmd: "cd /var/www/deploy && bash run_prd.sh"
