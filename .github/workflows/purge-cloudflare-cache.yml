@@ -24,8 +24,7 @@ jobs:
           curl --request POST \
             --url https://api.cloudflare.com/client/v4/zones/${{ secrets.zone_id }}/purge_cache \
             --header 'Content-Type: application/json' \
-            --header 'X-Auth-Email: ${{ secrets.email }}'
-            --header 'X-Auth-Key: ${{ secrets.api_key }} ' \
+            --header 'Authorization: Bearer ${{ secrets.api_key }}' \
             --data '{
                "purge_everything": true
             }'
