@@ -11,8 +11,6 @@ on:
         required: true
       api_key:
         required: true
-      email:
-        required: true
 
 jobs:
   prepare:
