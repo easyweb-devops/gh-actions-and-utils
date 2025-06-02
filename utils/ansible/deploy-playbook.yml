@@ -9,7 +9,7 @@
       ansible.builtin.lineinfile:
         path: "/etc/environment"
         regexp: '{{ service_name }}='
-        line: 'export {{ service_name }}={{ image_tag }}'
+        line: '{{ service_name }}={{ image_tag }}'
     - name: Update source for {{ service_name }}={{ image_tag }}
       shell:
         cmd: source ~/.bashrc
