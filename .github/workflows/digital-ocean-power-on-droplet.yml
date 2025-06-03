@@ -39,17 +39,7 @@ jobs:
             fi
             sleep 5
           done
-
-          echo "Waiting for domain ${{ inputs.domain }} to respond..."
-          while true; do
-            ping -c 1 "${{ inputs.domain }}" &>/dev/null;
-            if [ $? -eq 0 ]; then
-              echo "${{ inputs.domain }} is reachable."
-              break
-            else
-              echo "Waiting for ${{ inputs.domain }} to respond..."
-              sleep 5
-            fi
-          done
-          echo "Operation complete."
-          exit $?
+          
+          
+          sleep 10;
+          exit 0;
