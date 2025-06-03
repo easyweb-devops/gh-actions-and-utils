@@ -2,18 +2,17 @@
 name: Power On Droplet
 
 on:
-  workflow_dispatch:
-    inputs:
-      domain:
-        options:
-          - 'easy-web.gr'
-        description: fds
   workflow_call:
     inputs:
       domain:
         description: "Environment to deploy to"
         required: true
         type: string
+    secrets:
+      droplet_id:
+        required: true
+      do_token:
+        required: true
 
 jobs:
   poweron:
@@ -27,12 +26,12 @@ jobs:
 
       - name: Power on Droplet and Wait
         run: |
-          echo "Powering on Droplet ID ${{ secrets.DROPLET_ID }}..."
-          doctl compute droplet-action power-on ${{ secrets.DROPLET_ID }} --access-token ${{ secrets.DO_TOKEN }}
+          echo "Powering on Droplet ID ${{ secrets.droplet_id }}..."
+          doctl compute droplet-action power-on ${{ secrets.droplet_id }} --access-token ${{ secrets.do_token }}
 
           echo "Waiting for droplet to become active..."
           while true; do
-            STATUS=$(doctl compute droplet get ${{ secrets.DROPLET_ID }} --format Status --no-header --access-token ${{ secrets.DO_TOKEN }})
+            STATUS=$(doctl compute droplet get ${{ secrets.droplet_id }} --format Status --no-header --access-token ${{ secrets.do_token }})
             echo "Current status: $STATUS"
             if [ "$STATUS" == "active" ]; then
               echo "Droplet is active."
