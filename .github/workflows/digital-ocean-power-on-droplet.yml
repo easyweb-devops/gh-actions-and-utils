@@ -42,7 +42,8 @@ jobs:
 
           echo "Waiting for domain ${{ inputs.domain }} to respond..."
           while true; do
-            if ping -c 1 "${{ inputs.domain }}" &>/dev/null; then
+            ping -c 1 "${{ inputs.domain }}" &>/dev/null;
+            if [ $? -eq 0 ]; then
               echo "${{ inputs.domain }} is reachable."
               break
             else
