@@ -2,16 +2,18 @@
 name: Power On Droplet
 
 on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        options:
+          - 'easy-web.gr'
+        description: fds
   workflow_call:
     inputs:
       domain:
         description: "Environment to deploy to"
         required: true
         type: string
-    secrets:
-      droplet_id:
-        required: true
-
 
 jobs:
   poweron:
@@ -24,16 +26,13 @@ jobs:
 
 
       - name: Power on Droplet and Wait
-        env:
-          DROPLET_ID: ${{ secrets.droplet_id }}
-          DOMAIN: ${{ secrets.domain }}
         run: |
-          echo "Powering on Droplet ID $DROPLET_ID..."
-          doctl compute droplet-action power-on "$DROPLET_ID" --access-token ${{ secrets.DO_TOKEN }}
+          echo "Powering on Droplet ID ${{ secrets.DROPLET_ID }}..."
+          doctl compute droplet-action power-on ${{ secrets.DROPLET_ID }} --access-token ${{ secrets.DO_TOKEN }}
 
           echo "Waiting for droplet to become active..."
           while true; do
-            STATUS=$(doctl compute droplet get "$DROPLET_ID" --format Status --no-header --access-token ${{ secrets.DO_TOKEN }})
+            STATUS=$(doctl compute droplet get ${{ secrets.DROPLET_ID }} --format Status --no-header --access-token ${{ secrets.DO_TOKEN }})
             echo "Current status: $STATUS"
             if [ "$STATUS" == "active" ]; then
               echo "Droplet is active."
@@ -42,13 +41,13 @@ jobs:
             sleep 5
           done
 
-          echo "Waiting for domain $DOMAIN to respond..."
+          echo "Waiting for domain ${{ inputs.domain }} to respond..."
           while true; do
-            if ping -c 1 "$DOMAIN" &>/dev/null; then
-              echo "$DOMAIN is reachable."
+            if ping -c 1 "${{ inputs.domain }}" &>/dev/null; then
+              echo "${{ inputs.domain }} is reachable."
               break
             else
-              echo "Waiting for $DOMAIN to respond..."
+              echo "Waiting for ${{ inputs.domain }} to respond..."
               sleep 5
             fi
           done
