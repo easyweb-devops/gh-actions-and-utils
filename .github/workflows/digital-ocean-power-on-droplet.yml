@@ -22,11 +22,6 @@ jobs:
         run: |
           sudo snap install doctl --classic
 
-      - name: Authenticate with DigitalOcean
-        env:
-          DO_TOKEN: ${{ secrets.DO_TOKEN }}
-        run: |
-          doctl auth init -t "$DO_TOKEN"
 
       - name: Power on Droplet and Wait
         env:
@@ -34,11 +29,11 @@ jobs:
           DOMAIN: ${{ secrets.domain }}
         run: |
           echo "Powering on Droplet ID $DROPLET_ID..."
-          doctl compute droplet-action power-on "$DROPLET_ID"
+          doctl compute droplet-action power-on "$DROPLET_ID" --access-token ${{ secrets.DO_TOKEN }}
 
           echo "Waiting for droplet to become active..."
           while true; do
-            STATUS=$(doctl compute droplet get "$DROPLET_ID" --format Status --no-header)
+            STATUS=$(doctl compute droplet get "$DROPLET_ID" --format Status --no-header --access-token ${{ secrets.DO_TOKEN }})
             echo "Current status: $STATUS"
             if [ "$STATUS" == "active" ]; then
               echo "Droplet is active."
