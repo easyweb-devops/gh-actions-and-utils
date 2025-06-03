@@ -1,0 +1,60 @@
+# .github/workflows/poweron.yml
+name: Power On Droplet
+
+on:
+  workflow_call:
+    inputs:
+      domain:
+        description: "Environment to deploy to"
+        required: true
+        type: string
+    secrets:
+      droplet_id:
+        required: true
+
+
+jobs:
+  poweron:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install doctl
+        run: |
+          sudo snap install doctl --classic
+
+      - name: Authenticate with DigitalOcean
+        env:
+          DO_TOKEN: ${{ secrets.DO_TOKEN }}
+        run: |
+          doctl auth init -t "$DO_TOKEN"
+
+      - name: Power on Droplet and Wait
+        env:
+          DROPLET_ID: ${{ secrets.droplet_id }}
+          DOMAIN: ${{ secrets.domain }}
+        run: |
+          echo "Powering on Droplet ID $DROPLET_ID..."
+          doctl compute droplet-action power-on "$DROPLET_ID"
+
+          echo "Waiting for droplet to become active..."
+          while true; do
+            STATUS=$(doctl compute droplet get "$DROPLET_ID" --format Status --no-header)
+            echo "Current status: $STATUS"
+            if [ "$STATUS" == "active" ]; then
+              echo "Droplet is active."
+              break
+            fi
+            sleep 5
+          done
+
+          echo "Waiting for domain $DOMAIN to respond..."
+          while true; do
+            if ping -c 1 "$DOMAIN" &>/dev/null; then
+              echo "$DOMAIN is reachable."
+              break
+            else
+              echo "Waiting for $DOMAIN to respond..."
+              sleep 5
+            fi
+          done
+          echo "Operation complete."
