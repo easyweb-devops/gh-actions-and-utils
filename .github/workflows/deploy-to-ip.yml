@@ -1,0 +1,68 @@
+name: Deploy to environment
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: string
+      image_tag:
+        description: "Tag for the Docker image"
+        required: true
+        type: string
+      image_name:
+        description: "Name of the Docker image"
+        required: true
+        type: string
+      service_name:
+        description: "Name of the service to update"
+        required: true
+        type: string
+    secrets:
+      IP:
+        required: true
+      USER:
+        required: true
+      DEPLOY_KEY:
+        required: true
+
+jobs:
+  prepare:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Create hosts file
+        run: |
+          touch ${{github.workspace}}/hosts
+          echo "[servers]" >> ${{github.workspace}}/hosts
+          while IFS= read -r line
+          do
+            echo "${{secrets.IP}}:22 ansible_ssh_port=22 ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/$USER ansible_ssh_user=$USER" >> ${{github.workspace}}/hosts
+          done < ${{github.workspace}}/ip.txt
+          cat ${{github.workspace}}/hosts
+      - name: Setting up SSH deploy key
+        shell: bash {0}
+        run: |
+          mkdir -p /home/runner/.ssh/
+          echo "${{ secrets.DEPLOY_KEY }}" > /home/runner/.ssh/${{ secrets.USER }}
+          chmod 600 /home/runner/.ssh/${{ secrets.USER }}
+      - name: Set up known hosts
+        run: |
+          touch /home/runner/.ssh/known_hosts
+          ip_addresses=$(cat ${{github.workspace}}/ip.txt)
+          for ip in $ip_addresses; do
+            echo "Processing IP: $ip"
+            ssh-keyscan "$ip" >> /home/runner/.ssh/known_hosts
+          done
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+      - name: Deploy
+        run: |
+          export ANSIBLE_HOST_KEY_CHECKING=False
+          curl -s https://raw.githubusercontent.com/easyweb-devops/gh-actions-and-utils/refs/heads/main/utils/ansible/deploy-playbook.yml > ${{github.workspace}}/deploy.yml
+          TAG=$(echo ${{ inputs.image_tag }} | sed 's/[:,\/]/-/g')
+          ansible-playbook -i hosts deploy.yml --private-key=/home/runner/.ssh/${{ secrets.USER }} --user=${{ secrets.USER }} --extra-vars "service_name=${{ inputs.service_name }} image_name=${{ inputs.image_name }} image_tag=${TAG} -vv"
