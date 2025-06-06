@@ -40,7 +40,7 @@ jobs:
           while IFS= read -r line
           do
             echo "${{secrets.IP}}:22 ansible_ssh_port=22 ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/$USER ansible_ssh_user=$USER" >> ${{github.workspace}}/hosts
-          done < ${{github.workspace}}/ip.txt
+          done < ip.txt
           cat ${{github.workspace}}/hosts
       - name: Setting up SSH deploy key
         shell: bash {0}
@@ -51,7 +51,7 @@ jobs:
       - name: Set up known hosts
         run: |
           touch /home/runner/.ssh/known_hosts
-          ip_addresses=$(cat ${{github.workspace}}/ip.txt)
+          ip_addresses=$(cat ip.txt)
           for ip in $ip_addresses; do
             echo "Processing IP: $ip"
             ssh-keyscan "$ip" >> /home/runner/.ssh/known_hosts
