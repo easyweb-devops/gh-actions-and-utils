@@ -37,15 +37,15 @@ jobs:
         run: |
           touch ${{github.workspace}}/hosts
           echo "[servers]" >> ${{github.workspace}}/hosts
-          echo "${{secrets.IP}}:22 ansible_ssh_port=22 ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/$USER ansible_ssh_user=$USER" >> ${{github.workspace}}/hosts
+          echo "${{secrets.IP}}:22 ansible_ssh_port=22 ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/ansible ansible_ssh_user=ansible" >> ${{github.workspace}}/hosts
           echo "${{secrets.IP}}" > ip.txt
           cat ${{github.workspace}}/hosts
       - name: Setting up SSH deploy key
         shell: bash {0}
         run: |
           mkdir -p /home/runner/.ssh/
-          echo "${{ secrets.DEPLOY_KEY }}" > /home/runner/.ssh/${{ secrets.USER }}
-          chmod 600 /home/runner/.ssh/${{ secrets.USER }}
+          echo "${{ secrets.DEPLOY_KEY }}" > /home/runner/.ssh/ansible
+          chmod 600 /home/runner/.ssh/ansible
       - name: Set up known hosts
         run: |
           touch /home/runner/.ssh/known_hosts
@@ -63,4 +63,4 @@ jobs:
           export ANSIBLE_HOST_KEY_CHECKING=False
           curl -s https://raw.githubusercontent.com/easyweb-devops/gh-actions-and-utils/refs/heads/main/utils/ansible/deploy-playbook.yml > ${{github.workspace}}/deploy.yml
           TAG=$(echo ${{ inputs.image_tag }} | sed 's/[:,\/]/-/g')
-          ansible-playbook -i hosts deploy.yml --private-key=/home/runner/.ssh/${{ secrets.USER }} --user=${{ secrets.USER }} --extra-vars "service_name=${{ inputs.service_name }} image_name=${{ inputs.image_name }} image_tag=${TAG} -vv"
+          ansible-playbook -i hosts deploy.yml --private-key=/home/runner/.ssh/ansible --user=ansible --extra-vars "service_name=${{ inputs.service_name }} image_name=${{ inputs.image_name }} image_tag=${TAG} -vv"
