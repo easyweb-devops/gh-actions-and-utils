@@ -7,6 +7,11 @@ on:
         description: 'Name of the Docker image'
         required: true
         type: string
+      env:
+        description: 'Environment variables'
+        required: false
+        type: string
+        default: ""
       image_tag:
         description: 'Tag for the Docker image'
         required: true
@@ -31,6 +36,8 @@ jobs:
            docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
       - name: Build and push
         run: |
+          env_contents="${{inputs.env}}";
+          echo "$env_contents" > ./.env;
           TAG=$(echo ${{ inputs.image_tag }} | sed 's/[:,\/]/-/g')
           docker build -t ${{ inputs.image_name }}:${TAG} .
           docker push ${{ inputs.image_name }}:${TAG}
